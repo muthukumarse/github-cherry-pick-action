@@ -29,7 +29,7 @@ export async function run(): Promise<void> {
       '--format=%s'
     ])
     const soureBranch = gitCommitShaStr.stdout.split("/").slice(-1)[0]
-    const prBranch = `cherry-pick/${soureBranch}`
+    const prBranch = `cherry-pick-${soureBranch}`
     inputs.labels.concat(soureBranch)
 
     // Configure the committer and author
