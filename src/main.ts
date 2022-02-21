@@ -24,7 +24,7 @@ export async function run(): Promise<void> {
 
     const githubSha = process.env.GITHUB_SHA
     const soureBranch = await gitExecution([
-      'git show ',
+      'show',
       `${githubSha}`,
       '--format=%s | cut -f6 -d" " - | cut -f3 -d"/" -'
     ])
