@@ -9394,7 +9394,7 @@ function run() {
                 `${githubSha}`,
                 '--format=%s'
             ]);
-            const soureBranch = gitCommitShaStr.stdout.split("/").slice(-1)[0];
+            const soureBranch = gitCommitShaStr.stdout.trim().split("/").slice(-1)[0];
             const prBranch = `cherry-pick-${soureBranch}`;
             inputs.labels.concat(soureBranch);
             // Configure the committer and author
