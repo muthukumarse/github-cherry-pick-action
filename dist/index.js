@@ -9390,7 +9390,7 @@ function run() {
             core.info(`Cherry pick into branch ${inputs.branch}!`);
             const githubSha = process.env.GITHUB_SHA;
             const soureBranch = yield gitExecution([
-                'git show ',
+                'show',
                 `${githubSha}`,
                 '--format=%s | cut -f6 -d" " - | cut -f3 -d"/" -'
             ]);
