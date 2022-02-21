@@ -9389,13 +9389,14 @@ function run() {
             };
             core.info(`Cherry pick into branch ${inputs.branch}!`);
             const githubSha = process.env.GITHUB_SHA;
-            const soureBranch = yield gitExecution([
+            const gitCommitShaStr = yield gitExecution([
                 'show',
                 `${githubSha}`,
-                '--format=%s | cut -f6 -d" " - | cut -f3 -d"/" -'
+                '--format=%s'
             ]);
+            const soureBranch = gitCommitShaStr.stdout.split("/").slice(-1)[0];
             const prBranch = `cherry-pick/${soureBranch}`;
-            inputs.labels.concat(soureBranch.stdout);
+            inputs.labels.concat(soureBranch);
             // Configure the committer and author
             core.startGroup('Configuring the committer and author');
             const parsedAuthor = utils.parseDisplayNameEmail(inputs.author);
