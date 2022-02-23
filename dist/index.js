@@ -9246,7 +9246,7 @@ exports.createPullRequest = void 0;
 const github = __importStar(__webpack_require__(5438));
 const core = __importStar(__webpack_require__(2186));
 const ERROR_PR_REVIEW_FROM_AUTHOR = 'Review cannot be requested from pull request author';
-function createPullRequest(inputs, prBranch, hotfixFilterUrl) {
+function createPullRequest(inputs, prBranch) {
     return __awaiter(this, void 0, void 0, function* () {
         const octokit = github.getOctokit(inputs.token);
         if (process.env.GITHUB_REPOSITORY !== undefined) {
@@ -9259,7 +9259,7 @@ function createPullRequest(inputs, prBranch, hotfixFilterUrl) {
             // Get PR body
             const body = github.context.payload &&
                 github.context.payload.pull_request &&
-                github.context.payload.pull_request.body + '\n HotFix - ' + hotfixFilterUrl;
+                github.context.payload.pull_request.body;
             core.info(`Using body '${body}'`);
             // Create PR
             const pull = yield octokit.pulls.create({
@@ -9385,7 +9385,7 @@ function run() {
                 labels: utils.getInputAsArray('labels'),
                 assignees: utils.getInputAsArray('assignees'),
                 reviewers: utils.getInputAsArray('reviewers'),
-                teamReviewers: utils.getInputAsArray('teamReviewers'),
+                teamReviewers: utils.getInputAsArray('teamReviewers')
             };
             core.info(`Cherry pick into branch ${inputs.branch}!`);
             const githubSha = process.env.GITHUB_SHA;
@@ -9436,14 +9436,9 @@ function run() {
             core.startGroup('Push new branch to remote');
             yield gitExecution(['push', '-u', 'origin', `${prBranch}`]);
             core.endGroup();
-            const GIT_ORIGIN_URL = yield gitExecution([
-                'config',
-                ' --get remote.origin.url'
-            ]);
-            const hotfixFilterUrl = GIT_ORIGIN_URL.stdout.replace("git@github.com:", "https://github.com/").replace(".git", "") + "/pulls?q=head:" + prBranch;
             // Create pull request
             core.startGroup('Opening pull request');
-            yield github_helper_1.createPullRequest(inputs, prBranch, hotfixFilterUrl);
+            yield github_helper_1.createPullRequest(inputs, prBranch);
             core.endGroup();
         }
         catch (error) {

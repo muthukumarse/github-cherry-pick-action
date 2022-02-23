@@ -17,7 +17,7 @@ export async function run(): Promise<void> {
       labels: utils.getInputAsArray('labels'),
       assignees: utils.getInputAsArray('assignees'),
       reviewers: utils.getInputAsArray('reviewers'),
-      teamReviewers: utils.getInputAsArray('teamReviewers'),
+      teamReviewers: utils.getInputAsArray('teamReviewers')
     }
 
     core.info(`Cherry pick into branch ${inputs.branch}!`)
@@ -27,7 +27,7 @@ export async function run(): Promise<void> {
       'show',
       `${githubSha}`,
       '--format=%s'
-    ])    
+    ])
     const soureBranch = gitCommitShaStr.stdout.trim().split("/").slice(-1)[0]
     const prBranch = `cherry-pick/${soureBranch}`
 
@@ -78,15 +78,9 @@ export async function run(): Promise<void> {
     await gitExecution(['push', '-u', 'origin', `${prBranch}`])
     core.endGroup()
 
-    const GIT_ORIGIN_URL = await gitExecution([
-      'config',
-      ' --get remote.origin.url'
-    ])
-    const hotfixFilterUrl = GIT_ORIGIN_URL.stdout.replace("git@github.com:", "https://github.com/").replace(".git","")+"/pulls?q=head:"+prBranch
-
     // Create pull request
     core.startGroup('Opening pull request')
-    await createPullRequest(inputs, prBranch, hotfixFilterUrl)
+    await createPullRequest(inputs, prBranch)
     core.endGroup()
   } catch (error) {
     core.setFailed(error.message)
