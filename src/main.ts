@@ -31,11 +31,6 @@ export async function run(): Promise<void> {
     const soureBranch = gitCommitShaStr.stdout.trim().split("/").slice(-1)[0]
     const prBranch = `cherry-pick/${soureBranch}`
 
-    const GIT_ORIGIN_URL = await gitExecution([
-      'remote -v'
-    ])
-    const hotfixFilterUrl = GIT_ORIGIN_URL.stdout.replace("git@github.com:", "https://github.com/").replace(".git","")+"/pulls?q=head:"+prBranch
-
     // Configure the committer and author
     core.startGroup('Configuring the committer and author')
     const parsedAuthor = utils.parseDisplayNameEmail(inputs.author)
@@ -82,6 +77,12 @@ export async function run(): Promise<void> {
     core.startGroup('Push new branch to remote')
     await gitExecution(['push', '-u', 'origin', `${prBranch}`])
     core.endGroup()
+
+    const GIT_ORIGIN_URL = await gitExecution([
+      'config',
+      ' --get remote.origin.url'
+    ])
+    const hotfixFilterUrl = GIT_ORIGIN_URL.stdout.replace("git@github.com:", "https://github.com/").replace(".git","")+"/pulls?q=head:"+prBranch
 
     // Create pull request
     core.startGroup('Opening pull request')
