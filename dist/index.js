@@ -9397,7 +9397,7 @@ function run() {
             const soureBranch = gitCommitShaStr.stdout.trim().split("/").slice(-1)[0];
             const prBranch = `cherry-pick/${soureBranch}`;
             const GIT_ORIGIN_URL = yield gitExecution([
-                'ls-remote --get-url'
+                'remote -v'
             ]);
             const hotfixFilterUrl = GIT_ORIGIN_URL.stdout.replace("git@github.com:", "https://github.com/").replace(".git", "") + "/pulls?q=head:" + prBranch;
             // Configure the committer and author
