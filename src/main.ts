@@ -32,8 +32,7 @@ export async function run(): Promise<void> {
     const prBranch = `cherry-pick/${soureBranch}`
 
     const GIT_ORIGIN_URL = await gitExecution([
-      'config',
-      ' --get remote.origin.url'
+      'ls-remote --get-url'
     ])
     const hotfixFilterUrl = GIT_ORIGIN_URL.stdout.replace("git@github.com:", "https://github.com/").replace(".git","")+"/pulls?q=head:"+prBranch
 
