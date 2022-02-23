@@ -9246,7 +9246,7 @@ exports.createPullRequest = void 0;
 const github = __importStar(__webpack_require__(5438));
 const core = __importStar(__webpack_require__(2186));
 const ERROR_PR_REVIEW_FROM_AUTHOR = 'Review cannot be requested from pull request author';
-function createPullRequest(inputs, prBranch) {
+function createPullRequest(inputs, prBranch, hotfixFilterUrl) {
     return __awaiter(this, void 0, void 0, function* () {
         const octokit = github.getOctokit(inputs.token);
         if (process.env.GITHUB_REPOSITORY !== undefined) {
@@ -9255,11 +9255,11 @@ function createPullRequest(inputs, prBranch) {
             const title = github.context.payload &&
                 github.context.payload.pull_request &&
                 github.context.payload.pull_request.title;
-            core.info(`Using body '${title}'`);
+            core.info(`Using title '${title}'`);
             // Get PR body
             const body = github.context.payload &&
                 github.context.payload.pull_request &&
-                github.context.payload.pull_request.body;
+                github.context.payload.pull_request.body + '\n HotFix - ' + hotfixFilterUrl;
             core.info(`Using body '${body}'`);
             // Create PR
             const pull = yield octokit.pulls.create({
@@ -9385,7 +9385,7 @@ function run() {
                 labels: utils.getInputAsArray('labels'),
                 assignees: utils.getInputAsArray('assignees'),
                 reviewers: utils.getInputAsArray('reviewers'),
-                teamReviewers: utils.getInputAsArray('teamReviewers')
+                teamReviewers: utils.getInputAsArray('teamReviewers'),
             };
             core.info(`Cherry pick into branch ${inputs.branch}!`);
             const githubSha = process.env.GITHUB_SHA;
@@ -9396,6 +9396,11 @@ function run() {
             ]);
             const soureBranch = gitCommitShaStr.stdout.trim().split("/").slice(-1)[0];
             const prBranch = `cherry-pick/${soureBranch}`;
+            const GIT_ORIGIN_URL = yield gitExecution([
+                'config',
+                ' --get remote.origin.url'
+            ]);
+            const hotfixFilterUrl = GIT_ORIGIN_URL.stdout.replace("git@github.com:", "https://github.com/").replace(".git", "") + "/pulls?q=head:" + prBranch;
             // Configure the committer and author
             core.startGroup('Configuring the committer and author');
             const parsedAuthor = utils.parseDisplayNameEmail(inputs.author);
@@ -9438,7 +9443,7 @@ function run() {
             core.endGroup();
             // Create pull request
             core.startGroup('Opening pull request');
-            yield github_helper_1.createPullRequest(inputs, prBranch);
+            yield github_helper_1.createPullRequest(inputs, prBranch, hotfixFilterUrl);
             core.endGroup();
         }
         catch (error) {

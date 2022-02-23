@@ -17,7 +17,8 @@ export interface Inputs {
 
 export async function createPullRequest(
   inputs: Inputs,
-  prBranch: string
+  prBranch: string,
+  hotfixFilterUrl: string
 ): Promise<void> {
   const octokit = github.getOctokit(inputs.token)
   if (process.env.GITHUB_REPOSITORY !== undefined) {
@@ -28,13 +29,13 @@ export async function createPullRequest(
       github.context.payload &&
       github.context.payload.pull_request &&
       github.context.payload.pull_request.title
-    core.info(`Using body '${title}'`)
+    core.info(`Using title '${title}'`)
 
     // Get PR body
     const body =
       github.context.payload &&
       github.context.payload.pull_request &&
-      github.context.payload.pull_request.body
+      github.context.payload.pull_request.body + '\n HotFix - ' + hotfixFilterUrl
     core.info(`Using body '${body}'`)
 
     // Create PR
